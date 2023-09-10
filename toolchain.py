@@ -338,7 +338,7 @@ def build_gcc(*args):
                                '--prefix={}'.format(prefix),
                                '--program-prefix={}-'.format(target),
                                '--with-gnu-as', '--with-gnu-ld', '--disable-nls',
-                               '--disable-threads', '--enable-languages=c',
+                               '--disable-threads', '--enable-languages=c,c++',
                                '--disable-multilib', '--disable-libgcj',
                                '--without-headers', '--disable-shared', '--enable-lto',
                                '--disable-werror'])
