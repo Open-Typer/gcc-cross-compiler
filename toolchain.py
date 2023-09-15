@@ -25,7 +25,10 @@
     CROSS_PREFIX as the target directory but the installation
     copies the files into PKG/ subdirectory without affecting
     the actual root file system. That is only useful if you do
-    not want to run the script under the super user."""
+    not want to run the script under the super user.
+
+    If '--sysroot=/path/to/sysroot' is present, the specified
+    sysroot will be used (useful for userspace programs)."""
 
 # Copyright (c) 2016-2020 Konstantin Tcholokachvili
 # All rights reserved.
@@ -328,7 +331,14 @@ def build_binutils(install, nb_cores, binutils_directory, target, prefix):
 def build_gcc(*args):
     """Build GCC."""
 
-    install, nb_cores, obj_directory, prefix, gcc_directory, target = args
+    install, nb_cores, obj_directory, prefix, gcc_directory, target, sysroot_path = args
+
+    if sysroot_path == '':
+        sysroot_arg = ''
+        build_sysroot_arg = ''
+    else:
+        sysroot_arg = '--with-sysroot=' + sysroot_path
+        build_sysroot_arg = '--with-build-sysroot=' + sysroot_path
 
     os.chdir(obj_directory)
 
@@ -341,7 +351,7 @@ def build_gcc(*args):
                                '--disable-threads', '--enable-languages=c,c++',
                                '--disable-multilib', '--disable-libgcj',
                                '--without-headers', '--disable-shared', '--enable-lto',
-                               '--disable-werror'])
+                               '--disable-werror', sysroot_arg, build_sysroot_arg])
     except subprocess.CalledProcessError:
         print('Error: gcc headers checking failed')
         sys.exit()
@@ -401,7 +411,7 @@ def build_gdb(install, nb_cores, gdb_directory, target, prefix):
         sys.exit()
 
 
-def build_target(platform, install, nb_cores):
+def build_target(platform, install, nb_cores, sysroot_path):
     """Cross-compile gcc toolchain for a given architecture."""
 
     work_directory = BASEDIR + '/' + platform
@@ -426,7 +436,7 @@ def build_target(platform, install, nb_cores):
     unpack_tarballs(work_directory)
 
     build_binutils(install, nb_cores, binutils_directory, target, prefix)
-    build_gcc(install, nb_cores, obj_directory, prefix, gcc_directory, target)
+    build_gcc(install, nb_cores, obj_directory, prefix, gcc_directory, target, sysroot_path)
     build_gdb(install, nb_cores, gdb_directory, target, prefix)
 
     os.chdir(BASEDIR)
@@ -452,16 +462,20 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--cores',
                         help='Number of CPU cores',
                         type=int, required=False, default=1)
+    parser.add_argument('--sysroot',
+                        help='Absolute path to the sysroot',
+                        type=str, required=False, default='')
 
     arguments = parser.parse_args()
 
     target_platform = arguments.arch
     INSTALL = arguments.install == 'yes'
     nb_cpu_cores = arguments.cores - 1
+    sysroot_path = arguments.sysroot
 
     check_headers()
     prepare()
-    build_target(target_platform, INSTALL, nb_cpu_cores)
+    build_target(target_platform, INSTALL, nb_cpu_cores, sysroot_path)
 
     MSG = 'installed' if arguments.install == 'yes' else 'built'
     print('>>> Cross-compiler for {} is now {}.'.format(target_platform, MSG))
