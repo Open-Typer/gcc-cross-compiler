@@ -346,22 +346,26 @@ def build_gcc(*args):
         print('Error: gcc headers checking failed')
         sys.exit()
 
-    try:
-        subprocess.check_call(['make', '-j', str(nb_cores), 'all-gcc'])
-    except subprocess.CalledProcessError:
-        print('Error: gcc compilation failed')
-        sys.exit()
+    build_targets = ['all-gcc', 'all-target-libgcc', 'all']
+    install_targets = ['install-gcc', 'install-target-libgcc', 'install']
 
-    if install:
-        cmd = ['make', 'install-gcc']
-    else:
-        cmd = ['make', 'install-gcc', 'DESTDIR={}'.format(INSTALL_DIR)]
+    for i in range(len(build_targets)):
+        try:
+            subprocess.check_call(['make', '-j', str(nb_cores), build_targets[i]])
+        except subprocess.CalledProcessError:
+            print('Error: compilation failed (' + build_targets[i] + ')')
+            sys.exit()
 
-    try:
-        subprocess.check_call(cmd)
-    except subprocess.CalledProcessError:
-        print('Error: gcc installation failed')
-        sys.exit()
+        if install:
+            cmd = ['make', install_targets[i]]
+        else:
+            cmd = ['make', install_targets[i], 'DESTDIR={}'.format(INSTALL_DIR)]
+
+        try:
+            subprocess.check_call(cmd)
+        except subprocess.CalledProcessError:
+            print('Error: installation failed (' + install_targets[i] + ')')
+            sys.exit()
 
 
 def build_gdb(install, nb_cores, gdb_directory, target, prefix):
