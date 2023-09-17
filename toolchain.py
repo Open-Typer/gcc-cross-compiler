@@ -340,6 +340,13 @@ def build_gcc(*args):
         sysroot_arg = '--with-sysroot=' + sysroot_path
         build_sysroot_arg = '--with-build-sysroot=' + sysroot_path
 
+    if target == 'arm-linux-gnueabihf':
+        float_abi_arg = '--with-float=hard'
+        arch_arg = '--with-arch=armv7-a+fp'
+    else:
+        float_abi_arg = ''
+        arch_arg = ''
+
     os.chdir(obj_directory)
 
     try:
@@ -351,7 +358,8 @@ def build_gcc(*args):
                                '--disable-threads', '--enable-languages=c,c++',
                                '--disable-multilib', '--disable-libgcj',
                                '--without-headers', '--disable-shared', '--enable-lto',
-                               '--disable-werror', sysroot_arg, build_sysroot_arg])
+                               '--disable-werror', sysroot_arg, build_sysroot_arg,
+                               float_abi_arg, arch_arg])
     except subprocess.CalledProcessError:
         print('Error: gcc headers checking failed')
         sys.exit()
