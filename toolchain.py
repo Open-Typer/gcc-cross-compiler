@@ -353,7 +353,7 @@ def build_gcc(*args):
         subprocess.check_call(['{}/configure'.format(gcc_directory),
                                '--target={}'.format(target),
                                '--prefix={}'.format(prefix),
-                               '--program-prefix={}-'.format(target),
+                               '--program-prefix={}-'.format(target), '--with-newlib',
                                '--with-gnu-as', '--with-gnu-ld', '--disable-nls',
                                '--disable-threads', '--enable-languages=c,c++',
                                '--disable-multilib', '--disable-libgcj',
