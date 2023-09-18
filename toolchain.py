@@ -364,8 +364,8 @@ def build_gcc(*args):
         print('Error: gcc headers checking failed')
         sys.exit()
 
-    build_targets = ['all-gcc', 'all-target-libgcc']
-    install_targets = ['install-gcc', 'install-target-libgcc']
+    build_targets = ['all-gcc', 'all-target-libgcc', 'all-target-libstdc++-v3']
+    install_targets = ['install-gcc', 'install-target-libgcc', 'install-target-libstdc++-v3']
 
     for i in range(len(build_targets)):
         try:
