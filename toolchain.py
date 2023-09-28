@@ -449,7 +449,7 @@ def build_target(platform, install, nb_cores, sysroot_path):
 
     os.chdir(BASEDIR)
     print('>>> Cleaning up')
-    cleanup_dir(work_directory)
+    #cleanup_dir(work_directory)
 
 
 if __name__ == '__main__':
